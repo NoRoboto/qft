@@ -7,12 +7,13 @@
 using namespace std;
 
 int main() {
-  QRegister qreg({{0,1}, {1,0}, {1/sqrt(2), 1/sqrt(2)}, {1/sqrt(2), -1/sqrt(2)}, {1/sqrt(2), {0,1/sqrt(2)}}});
+  QRegister qreg({{0,1}, {1,0}, {1/sqrt(2), 1/sqrt(2)}, {1/sqrt(2), -1/sqrt(2)}, {1/sqrt(2), {0,1/sqrt(2)}},{0,1}, {1,0}, {1/sqrt(2), 1/sqrt(2)}, {1/sqrt(2), -1/sqrt(2)}, {1/sqrt(2), {0,1/sqrt(2)}}, {1/sqrt(2), 1/sqrt(2)}, {1/sqrt(2), 1/sqrt(2)}, {0, 1}});
   vector <complex<double> > result;
   result = qreg.getStateVector();
   qreg.applyQFT();
 
   result = qreg.getStateVector();
+  cout<<"n_qbits: "<<qreg.getNumberQubits()<<endl;
   cout<<"Final states: "<<endl;
   for (int i = 0; i < result.size(); i++)
     cout<<"result["<<i<<"] = "<<result[i]<<endl;
