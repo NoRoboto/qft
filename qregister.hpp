@@ -80,24 +80,37 @@ void QRegister::applyQFT() {
   complex<double> imaginaryValue = {0,1};
   double angle = (2*M_PI)/pow(2,n);
   double realPart, imaginaryPart;
-  for (int i = 0; i < N; i++)
+
+  //https://stackoverflow.com/questions/18669296/c-openmp-parallel-for-loop-alternatives-to-stdvector
+  #pragma omp parallel
   {
-    for (int j = 0; j < N; j++)
+    vector <complex<double> > QFTGatePrivate;
+    #pragma omp for nowait schedule(static)
+    for (int i = 0; i < N * N; i++)
     {
-      if (i==0)
-        QFTGate.push_back(1/sqrt(N));
-      else {
-        if (j==0)
-          QFTGate.push_back(1/sqrt(N));
+      for (int j = 0; j < N; j++)
+      {
+        if (i==0)
+          QFTGatePrivate.push_back(1/sqrt(N)); 
         else {
-          realPart = cos(angle*i*j);
-          imaginaryPart = sin(angle*i*j);
-          if (abs(realPart) < THRESHOLD) realPart = 0;
-          if (abs(imaginaryPart) < THRESHOLD) imaginaryPart = 0;
-          wm = realPart + imaginaryValue*imaginaryPart;
-          QFTGate.push_back(wm/sqrt(N));
+          if (j==0)
+            QFTGatePrivate.push_back(1/sqrt(N));
+          else {
+            realPart = cos(angle*i*j);
+            imaginaryPart = sin(angle*i*j);
+            if (abs(realPart) < THRESHOLD) realPart = 0;
+            if (abs(imaginaryPart) < THRESHOLD) imaginaryPart = 0;
+            wm = realPart + imaginaryValue*imaginaryPart;
+            QFTGatePrivate.push_back(wm/sqrt(N));
+          }
         }
       }
+    }
+
+    #pragma omp for schedule(static) ordered
+    for(int i=0; i<omp_get_num_threads(); i++) {
+        #pragma omp ordered
+        QFTGate.insert(QFTGate.end(), QFTGatePrivate.begin(), QFTGatePrivate.end());
     }
   }
   matrixProduct(QFTGate, stateVector);
