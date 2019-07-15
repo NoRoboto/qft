@@ -5,6 +5,7 @@
 #include <complex>
 #include <map>
 #include <bitset>
+#include "utils.hpp"
 
 using namespace std;
 
@@ -74,11 +75,11 @@ QRegister::QRegister(vector< vector <complex<double> > > qubitState) {
 
 void QRegister::applyQFT() {
   int n = qubitsNumber;
-  int N = pow(2, n);
+  int N = iterative_pow(2, n);
   vector <complex<double> > QFTGate;
   complex<double> wm;
   complex<double> imaginaryValue = {0,1};
-  double angle = (2*M_PI)/pow(2,n);
+  double angle = (2*M_PI) / double(N);
   double realPart, imaginaryPart;
   for (int i = 0; i < N; i++)
   {
@@ -109,7 +110,7 @@ vector <complex<double> > QRegister::tensorProduct(vector<Qubit> initialStatesMa
   complex<double> val;
   vector <complex<double> > finalStatesVector;
   string binary;
-  for (int i=0; i<pow(2,n); i++)
+  for (int i=0; i<iterative_pow(2,n); i++)
   {
     binary = bitset<MAX_QUBITS>(i).to_string();
     val={1,0};
